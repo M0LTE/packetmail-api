@@ -25,7 +25,7 @@ tbc
 
 ### Installation
 
-One day, this might be an `apt install packetmail-api`. For now, you're on your own.
+One day, this might be an `apt install packetmail-api`. For now, you're on your own. Start with a `dotnet run`.
 
 ## Requests
 

@@ -2,6 +2,8 @@
 
 The start of a REST API around BPQ32's telnet BBS interface.
 
+Nothing more than a proof of concept at this point.
+
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y8KFHA0)
 
 ## Installation

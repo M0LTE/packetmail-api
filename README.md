@@ -2,7 +2,7 @@
 
 The start of a REST API around BPQ32's telnet BBS interface.
 
-Nothing more than a proof of concept at this point.
+Nothing more than a proof of concept at this point. Just a wrapper around login via telnet, entering the BBS application, issuing an `lm` command, parsing the results into JSON, and returning them to the client.
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y8KFHA0)
 

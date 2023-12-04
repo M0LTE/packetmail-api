@@ -39,7 +39,7 @@ curl -X POST "http://localhost:5009/login?bpqTelnetUsername=username&password=pa
 
 The response code, if successful, will be 200, and the response body will be a session token. You'll need this for your next request.
 
-### Mail
+### Mail summary
 
 To get a JSON blob containing a summary of your mail, make a request like this:
 
@@ -85,3 +85,11 @@ where `aaa` is the session token you received when you POSTed to `/login`.
   }
 ]
 ```
+
+### Mail item
+
+There is not yet an endpoint implemented to allow one to fetch an item of mail.
+
+## Roadmap
+  - Implement enough endpoints to allow someone to build a reasonable packet mail client, starting with reading, and progressing to writing
+  - Back ends for BBS implementations other than BPQ telnet?

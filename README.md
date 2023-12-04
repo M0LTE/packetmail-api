@@ -44,7 +44,7 @@ The response code, if successful, will be 200, and the response body will be a s
 To get a JSON blob containing a summary of your mail, make a request like this:
 
 ```
-curl "http://localhost:5009/mail" -H 'sessionToken: aaa'
+curl http://localhost:5009/mail -H 'sessionToken: aaa'
 ```
 
 where `aaa` is the session token you received when you POSTed to `/login`.

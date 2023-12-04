@@ -48,3 +48,40 @@ curl http://localhost:5009/mail -H "sessionToken: aaa"
 ```
 
 where `aaa` is the session token you received when you POSTed to `/login`.
+
+#### Example response
+
+```
+[
+  {
+    "id": 4047,
+    "date": "16-Nov",
+    "type": "PN",
+    "length": 197,
+    "destinationCall": "M0LTE",
+    "destinationBbs": "@GB7RDG",
+    "sourceCall": "GM5AUG",
+    "subject": "Testing"
+  },
+  {
+    "id": 4043,
+    "date": "02-Nov",
+    "type": "PY",
+    "length": 184,
+    "destinationCall": "M0LTE",
+    "destinationBbs": "@GB7RDG",
+    "sourceCall": "GM5AUG",
+    "subject": "Test of HF forwarding"
+  },
+  {
+    "id": 4041,
+    "date": "01-Nov",
+    "type": "PY",
+    "length": 305,
+    "destinationCall": "M0LTE",
+    "destinationBbs": "@GB7RDG",
+    "sourceCall": "GM5AUG",
+    "subject": "Hello Tom"
+  }
+]
+```

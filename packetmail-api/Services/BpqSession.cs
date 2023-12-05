@@ -262,6 +262,52 @@ public class BpqSession() : IDisposable
         ((IDisposable)_client).Dispose();
     }
 
+    public async Task<(int id, string bid, int size)> SendMail(string to, string title, string body)
+    {
+        if (body.Contains("\r\n"))
+        {
+            body = body.Replace("\r\n", "\n");
+        }
+
+        await _semaphoreSlim.WaitAsync();
+        try
+        {
+            if (State != BpqSessionState.EnteredBbs) throw new InvalidOperationException($"Not in BBS. Call {nameof(EnterBbs)}() first.");
+            var client = _client!;
+
+            await client.WriteLineRfc854Async($"s {to}");
+            await Expect("Enter Title (only):\r\n");
+            await client.WriteLineRfc854Async(title);
+            await Expect("Enter Message Text (end with /ex or ctrl/z)\r\n");
+            foreach (var line in body.Split("\n"))
+            {
+                await client.WriteLineRfc854Async(line);
+            }
+            await client.WriteLineRfc854Async("/ex");
+            var result = await Expect(BbsPrompt! + "\r\n");
+
+            // Message: 4053 Bid:  4053_GB7RDG Size: 9
+            var parts = result.Replace(BbsPrompt!, "").Split(new[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            return (int.Parse(parts[1]), parts[3], int.Parse(parts[5]));
+        }
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
+    }
+
+    private async Task<string> Expect(string expected)
+    {
+        var received = await _client!.TerminatedReadAsync(expected, TimeSpan.FromSeconds(5));
+        if (!received.EndsWith(expected))
+        {
+            State = BpqSessionState.Faulted;
+            throw new BpqProtocolException($"Expected \"{expected.Trim()}\", received \"{received}\"");
+        }
+
+        return received;
+    }
+
     private bool disposed;
 
     public enum BpqSessionState

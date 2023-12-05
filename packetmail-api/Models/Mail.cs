@@ -51,8 +51,7 @@ public class Mail
                     headers[key] = value;
                 }
             }
-
-            if (blankLines == 1)
+            else if (blankLines == 1)
             {
                 if (string.IsNullOrWhiteSpace(line))
                 {
@@ -61,11 +60,19 @@ public class Mail
                 }
                 else
                 {
-                    routing.Add(line);
+                    if (line.StartsWith("R:"))
+                    {
+                        routing.Add(line);
+                    }
+                    else
+                    {
+                        bodyBuilder.Append(line + "\n");
+                        blankLines++;
+                        continue;
+                    }
                 }
             }
-
-            if (blankLines == 2)
+            else if (blankLines == 2)
             {
                 bodyBuilder.Append(line + "\n");
             }

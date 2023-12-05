@@ -32,4 +32,71 @@ public class BpqMailSummaryModelTests
         summary.SourceCall.Should().Be("GM5AU");
         summary.Subject.Should().Be("Test of HF forwarding");
     }
+
+    [Fact]
+    public void TestParsingLocalMail()
+    {
+        var lines = new[] {
+            "From: fromcall",
+"To: M0LTE",
+"Type/Status: PN",
+"Date/Time: 05-Dec 21:32Z",
+"Bid: 4062_GB7RDG",
+"Title: this is the subject",
+"",
+"this is a message",
+"test",
+"",
+"",
+"[End of Message #4062 from M0LTE]",
+"de GB7RDG>",
+""
+        };
+
+        Mail.TryParse(4062, lines, out var mail).Should().BeTrue();
+
+        mail.From.Should().Be("fromcall");
+        mail.To.Should().Be("M0LTE");
+        mail.TypeStatus.Should().Be("PN");
+        mail.DateTime.Should().Be("05-Dec 21:32Z");
+        mail.Bid.Should().Be("4062_GB7RDG");
+        mail.Title.Should().Be("this is the subject");
+        mail.Body.Should().Be("this is a message\ntest");
+        mail.Routing.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TestParsingRemoteMail()
+    {
+        var lines = new[] {
+            "From: fromcall",
+"To: M0LTE",
+"Type/Status: PN",
+"Date/Time: 05-Dec 21:32Z",
+"Bid: 4062_GB7RDG",
+"Title: this is the subject",
+"",
+"R:231116/1228Z 1892@GB7IOW.GB7IOW.#48.GBR.EURO LinBPQ6.0.24",
+"R:231116/1226Z 623@GB7AUG.#78.GBR.EURO LinBPQ6.0.24",
+"",
+"this is a message",
+"",
+"",
+"[End of Message #4062 from M0LTE]",
+"de GB7RDG>",
+""
+        };
+
+        Mail.TryParse(4062, lines, out var mail).Should().BeTrue();
+
+        mail.From.Should().Be("fromcall");
+        mail.To.Should().Be("M0LTE");
+        mail.TypeStatus.Should().Be("PN");
+        mail.DateTime.Should().Be("05-Dec 21:32Z");
+        mail.Bid.Should().Be("4062_GB7RDG");
+        mail.Title.Should().Be("this is the subject");
+        mail.Body.Should().Be("this is a message");
+        mail.Routing.Should().Contain("R:231116/1228Z 1892@GB7IOW.GB7IOW.#48.GBR.EURO LinBPQ6.0.24");
+        mail.Routing.Should().Contain("R:231116/1226Z 623@GB7AUG.#78.GBR.EURO LinBPQ6.0.24");
+    }
 }

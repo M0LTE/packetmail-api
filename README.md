@@ -116,6 +116,33 @@ where `{id}` is the id of the mail item and `{aaa}` is the session token you rec
 }
 ```
 
+### Send mail
+
+To send a message, make a request like this:
+
+```
+curl -X POST http://localhost:5009/mail \
+  -H "sessionToken: {aaa}" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "to": "M0LTE",
+  "title": "Subject here",
+  "body": "This is line 1\nAnd this is line 2"
+}'
+```
+
+where `{aaa}` is the session token you received when you POSTed to `/login`, and the body is a JSON blob representing the message to send.
+
+#### Example response
+
+```
+{
+  "id": 4068,
+  "bid": "4068_GB7RDG",
+  "size": 8
+}
+```
+
 ## Roadmap
   - Implement enough endpoints to allow someone to build a reasonable packet mail client, starting with reading, and progressing to writing
   - Back ends for BBS implementations other than BPQ telnet?

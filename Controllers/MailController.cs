@@ -14,14 +14,32 @@ public class MailController(BpqSessionManager bpqSessionManager) : ControllerBas
 
         if (session == null)
         {
-            return new NotFoundResult();
+            return StatusCode(StatusCodes.Status401Unauthorized, "Session token not / no longer valid");
         }
 
         if (!await session.EnterBbs())
         {
-            return StatusCode(500, "Unable to enter BBS");
+            return StatusCode(500, "Failed to enter BBS");
         }
 
         return new ObjectResult(await session.GetMyMailSummary());
+    }
+
+    [HttpGet("{messageId}")]
+    public async Task<IActionResult> GetMessage([FromHeader] string sessionToken, int messageId)
+    {
+        var session = await bpqSessionManager.RetrieveSessionAsync(sessionToken);
+
+        if (session == null)
+        {
+            return StatusCode(StatusCodes.Status401Unauthorized, "Session token not / no longer valid");
+        }
+
+        if (!await session.EnterBbs())
+        {
+            return StatusCode(500, "Failed to enter BBS");
+        }
+
+        return new ObjectResult(await session.GetMailMessage(messageId));
     }
 }

@@ -2,6 +2,7 @@
 using PrimS.Telnet;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace packetmail_api.Services;
 
@@ -125,23 +126,12 @@ public class BpqSession() : IDisposable
             if (State != BpqSessionState.EnteredBbs) throw new InvalidOperationException($"Not in BBS. Call {nameof(EnterBbs)}() first.");
             var client = _client!;
 
-            string[] lines;
-            while (true)
-            {
-                await client.WriteLineRfc854Async("lm");
-                var text = await client.TerminatedReadAsync(BbsPrompt! + "\r\n", TimeSpan.FromSeconds(5));
-                lines = text.Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            var lines = await GetBbsCommandResponse("lm");
 
-                if (lines[0] == "Invalid Command") // BPQ randomly does this when sent "lm"
-                {
-                    continue;
-                }
-
-                break;
-            }
+            lines = lines.Where(l => !string.IsNullOrWhiteSpace(l) && BbsPrompt != l).ToArray();
 
             var result = new List<MailSummary>();
-            foreach (var line in lines.Take(lines.Length - 1))
+            foreach (var line in lines)
             {
                 bool parsed;
                 MailSummary summary;
@@ -167,6 +157,57 @@ public class BpqSession() : IDisposable
             }
 
             return result;
+        }
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
+    }
+
+    private async Task<string[]> GetBbsCommandResponse(string command)
+    {
+        string[] lines;
+
+        while (true)
+        {
+            await _client!.WriteLineRfc854Async(command);
+            var text = await _client!.TerminatedReadAsync(BbsPrompt! + "\r\n", TimeSpan.FromSeconds(5));
+            lines = text.Split("\r\n", StringSplitOptions.TrimEntries);
+
+            if (lines[0] == "Invalid Command") // BPQ randomly does this when sent "lm"
+            {
+                continue;
+            }
+
+            break;
+        }
+
+        return lines;
+    }
+
+    public async Task<Mail?> GetMailMessage(int id)
+    {
+        await _semaphoreSlim.WaitAsync();
+        try
+        {
+            if (State != BpqSessionState.EnteredBbs) throw new InvalidOperationException($"Not in BBS. Call {nameof(EnterBbs)}() first.");
+            var client = _client!;
+
+            var lines = await GetBbsCommandResponse($"r {id}");
+
+            Mail mail;
+            bool parsed;
+            try
+            {
+                parsed = Mail.TryParse(id, lines, out mail);
+            }
+            catch (Exception ex)
+            {
+                State = BpqSessionState.Faulted;
+                throw new BpqProtocolException("Mail parse failure", ex);
+            }
+
+            return parsed ? mail : null;
         }
         finally
         {

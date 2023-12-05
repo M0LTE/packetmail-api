@@ -46,10 +46,10 @@ The response code, if successful, will be 200, and the response body will be a s
 To get a JSON blob containing a summary of your mail, make a request like this:
 
 ```
-curl http://localhost:5009/mail -H "sessionToken: aaa"
+curl http://localhost:5009/mail -H "sessionToken: {aaa}"
 ```
 
-where `aaa` is the session token you received when you POSTed to `/login`.
+where `{aaa}` is the session token you received when you POSTed to `/login`.
 
 #### Example response
 
@@ -90,7 +90,31 @@ where `aaa` is the session token you received when you POSTed to `/login`.
 
 ### Mail item
 
-There is not yet an endpoint implemented to allow one to fetch an item of mail.
+To get a JSON blob containing a particular item of mail, make a request like this:
+
+```
+curl http://localhost:5009/mail/{id} -H "sessionToken: {aaa}"
+```
+
+where `{id}` is the id of the mail item and `{aaa}` is the session token you received when you POSTed to `/login`.
+
+#### Example response
+
+```
+{
+  "from": "GM5AUG",
+  "to": "M0LTE",
+  "typeStatus": "PY",
+  "dateTime": "16-Nov 12:26Z",
+  "bid": "623_GB7AUG",
+  "title": "Testing",
+  "routing": [
+    "R:231116/1228Z 1892@GB7IOW.GB7IOW.#48.GBR.EURO LinBPQ6.0.24",
+    "R:231116/1226Z 623@GB7AUG.#78.GBR.EURO LinBPQ6.0.24"
+  ],
+  "body": "Hey Tom\nJust checking the node is back up and running.\nHave a good day!\n73 M"
+}
+```
 
 ## Roadmap
   - Implement enough endpoints to allow someone to build a reasonable packet mail client, starting with reading, and progressing to writing
